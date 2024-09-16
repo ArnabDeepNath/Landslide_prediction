@@ -1,0 +1,13 @@
+.root {
+  background-color: black;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+.plot {
+  background-color: aqua;
+  height: 50px;
+  width: 50px;
+}

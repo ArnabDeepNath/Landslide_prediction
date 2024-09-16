@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Landslide Prediction</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px;
+        background-color: #f4f4f4;
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+      }
+      form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      input[type='file'] {
+        display: block;
+        margin-bottom: 10px;
+      }
+      input[type='submit'] {
+        background-color: #3498db;
+        color: #fff;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      input[type='submit']:hover {
+        background-color: #2980b9;
+      }
+      #result {
+        background-color: #e74c3c;
+        color: #fff;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        display: none;
+      }
+      #plot-container {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-top: 20px;
+      }
+      #plot-container img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Landslide Prediction</h1>
+    <form method="post" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".h5" />
+      <input type="submit" value="Predict" />
+    </form>
+    <div id="result"></div>
+    <div id="plot-container">
+      <div class="plot-box">
+        <div class="plot-title">Predictions</div>
+        <img id="prediction-plot" alt="Prediction Plot" />
+      </div>
+      <div class="plot-box">
+        <div class="plot-title">Original Image</div>
+        <img id="original-plot" alt="Original Image Plot" />
+      </div>
+    </div>
+
+    <script>
+      document.querySelector('form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+        fetch('/', {
+          method: 'POST',
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('Received data:', data); // Log the received data
+            if (data.error) {
+              document.getElementById('result').textContent =
+                'Error: ' + data.error;
+              document.getElementById('result').style.display = 'block';
+              document.getElementById('plot-container').style.display = 'none';
+              console.error('Error:', data.error); // Log the error
+            } else {
+              document.getElementById('result').style.display = 'none';
+              document.getElementById('plot-container').style.display = 'flex';
+              if (data.prediction_plot && data.original_plot) {
+                document.getElementById('prediction-plot').src =
+                  'data:image/png;base64,' + data.prediction_plot;
+                document.getElementById('original-plot').src =
+                  'data:image/png;base64,' + data.original_plot;
+              } else {
+                console.error('Plots are missing in the response');
+                document.getElementById('result').textContent =
+                  'Error: Failed to generate plots';
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('plot-container').style.display =
+                  'none';
+              }
+            }
+          })
+          .catch((error) => {
+            console.error('Fetch error:', error);
+            document.getElementById('result').textContent =
+              'Error: ' + error.message;
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('plot-container').style.display = 'none';
+          });
+      });
+    </script>
+  </body>
+</html>
